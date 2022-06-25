@@ -25,13 +25,13 @@ public class FXMLController {
     private URL location;
 
     @FXML // fx:id="boxAnno"
-    private ComboBox<?> boxAnno; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxAnno; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxMese"
-    private ComboBox<?> boxMese; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxMese; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxGiorno"
-    private ComboBox<?> boxGiorno; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxGiorno; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnCreaReteCittadina"
     private Button btnCreaReteCittadina; // Value injected by FXMLLoader
@@ -47,11 +47,43 @@ public class FXMLController {
 
     @FXML
     void doCreaReteCittadina(ActionEvent event) {
-
+    	txtResult.clear();
+    	Integer anno= boxAnno.getValue();
+    	if(anno!=null) {
+    		String risultato=this.model.creaGrafo(anno);
+        	txtResult.setText(risultato);	
+        	String vicini = this.model.getVicini();
+        	txtResult.appendText(vicini);
+    	}else {
+    		txtResult.setText("Scegliere un anno prima di creare il grafo!");
+    		return;
+    	}
+    	
     }
 
     @FXML
     void doSimula(ActionEvent event) {
+    	txtResult.clear();
+    	Integer anno= boxAnno.getValue();
+    	Integer mese= boxMese.getValue();
+    	Integer giorno= boxGiorno.getValue();
+    	if(anno==null || mese==null || giorno==null) {
+    		txtResult.setText("Inserisci tutti i valori cojone!");
+    		return;
+    	}
+    	try {
+    		int num= Integer.parseInt(txtN.getText());
+    		if(num<1 || num>10)
+    			throw new NumberFormatException();
+    		int ris= this.model.simula(num, giorno, mese, anno);
+    		txtResult.setText("Simulazione effettuata con "+num+" agent!\n");
+    		txtResult.appendText("Crimini mal gestiti nel giorno "+giorno+"/"+mese+"/"+anno+" sono: "+ris);
+    	}catch(NumberFormatException e) {
+    		txtResult.setText("Inserisci un valore numerico intero tra 1 e 10, cojone!");
+    		return;
+    	}
+    	
+    	
 
     }
 
@@ -69,5 +101,13 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	for(int i=2014; i<2018; i++)
+    		boxAnno.getItems().add(i);
+    	for(int i=1;i<=12;i++) {
+    		boxMese.getItems().add(i);
+    	}
+    	for(int i=1;i<=31;i++) {
+    		boxGiorno.getItems().add(i);
+    	}
     }
 }
